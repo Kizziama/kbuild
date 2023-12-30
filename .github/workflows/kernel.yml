@@ -1,0 +1,29 @@
+name: Kernel Build
+on: 
+  workflow_dispatch:
+
+env:
+  GH_CRED: ${{ secrets.GH_TOKEN }}
+  TG_TOKEN: ${{ secrets.TG_TOKEN }}
+  TG_CHAT: ${{ secrets.TG_CHAT }}
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3.0.2
+      - uses: hendrikmuhs/ccache-action@v1.2
+      - name: Start building kernel
+        run: |
+             bash <(curl -s https://raw.githubusercontent.com/akhilnarang/scripts/master/setup/android_build_env.sh)
+             git config --global user.name "Kizziama"
+             git config --global user.email "kizziama@proton.me"
+             echo "https://Kizziama:$GH_CRED@github.com" > ~/.git-credentials
+             git config --global credential.helper "store --file ~/.git-credentials"
+             mkdir k
+             cd k
+             repo init https://github.com/Six-Labs/kernel_manifest --depth=1
+             repo sync
+             ./build.sh
+             curl -sL https://git.io/file-transfer | sh
+             ./transfer wet Hikouki-RMX3630*
